@@ -739,18 +739,18 @@ elif st.session_state.page == 'calculator':
             
             # Progress toward goals
             st.subheader("Progress Toward Goals")
-            min_progress = min(100, int((net_income / min_income_goal) * 100)) if min_income_goal > 0 else 0
-            side_progress = min(100, int((net_income / side_income_goal) * 100)) if side_income_goal > 0 else 0
-            full_progress = min(100, int((net_income / full_income_goal) * 100)) if full_income_goal > 0 else 0
+            min_progress = min(1.0, net_income / min_income_goal) if min_income_goal > 0 else 0
+            side_progress = min(1.0, net_income / side_income_goal) if side_income_goal > 0 else 0
+            full_progress = min(1.0, net_income / full_income_goal) if full_income_goal > 0 else 0
             
-            st.progress(min_progress / 100)
-            st.caption(f"Minimum income: {min_progress}%")
+            st.progress(min_progress)
+            st.caption(f"Minimum income: {int(min_progress * 100)}%")
             
-            st.progress(side_progress / 100)
-            st.caption(f"Side business: {side_progress}%")
+            st.progress(side_progress)
+            st.caption(f"Side business: {int(side_progress * 100)}%")
             
-            st.progress(full_progress / 100)
-            st.caption(f"Full-time: {full_progress}%")
+            st.progress(full_progress)
+            st.caption(f"Full-time: {int(full_progress * 100)}%")
         
         # Insights
         st.divider()
