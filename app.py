@@ -619,65 +619,47 @@ elif st.session_state.page == 'calculator':
     currency_info = currency_data[currency]
     symbol = currency_info["symbol"]
     
-    # Create tabs for organization
-    tab1, tab2, tab3 = st.tabs(["📚 Teaching Plan", "💸 Costs", "🎯 Goals & Results"])
+    # Create three columns layout
+    col_left, col_middle, col_right = st.columns([1.5, 1.5, 2])
     
-    with tab1:
-        st.header("Your Teaching Plan")
+    # LEFT COLUMN - INCOME
+    with col_left:
+        st.markdown("### 📚 Your Income")
+        st.markdown("##### Core Teaching")
+        price_per_student = st.slider(f"Price per student {symbol}", 0, 500, 100, key="price")
+        students_per_series = st.slider("Students per series", 3, 50, 10, key="students")
+        series_per_year = st.slider("Series per year", 1, 20, 4, key="series")
+        scholarships = st.slider("Scholarships/year", 0, 50, 0, key="scholarships")
         
-        col1, col2 = st.columns(2)
-        with col1:
-            st.subheader("Core Teaching")
-            price_per_student = st.slider(f"Price per student (6-week series) {symbol}", 0, 500, 100)
-            students_per_series = st.slider("Students per series", 3, 50, 10)
-            series_per_year = st.slider("Series per year", 1, 20, 4)
-            scholarships = st.slider("Full scholarships per year", 0, 50, 0)
-        
-        with col2:
-            st.subheader("Additional Income")
-            monthly_members = st.slider("Monthly subscription members", 0, 100, 0)
-            monthly_price = st.slider(f"Monthly subscription price {symbol}", 0, 100, 30)
-            corporate_workshops = st.slider("Corporate workshops/year", 0, 52, 0)
-            corporate_price = st.slider(f"Price per workshop {symbol}", 500, 10000, 2000, step=500)
+        st.markdown("##### Additional Income")
+        monthly_members = st.slider("Monthly members", 0, 100, 0, key="monthly")
+        monthly_price = st.slider(f"Monthly price {symbol}", 0, 100, 30, key="monthly_price")
+        corporate_workshops = st.slider("Corporate/year", 0, 52, 0, key="corporate")
+        corporate_price = st.slider(f"Workshop price {symbol}", 500, 10000, 2000, step=500, key="corp_price")
     
-    with tab2:
-        st.header("Your Costs")
+    # MIDDLE COLUMN - COSTS
+    with col_middle:
+        st.markdown("### 💸 Your Costs")
+        st.markdown("##### Monthly Cash Costs")
+        venue_cost = st.number_input(f"Venue/Zoom {symbol}", 0, 1000, 50, key="venue")
+        insurance_cost = st.number_input(f"Insurance {symbol}", 0, 500, 40, key="insurance")
+        marketing_cost = st.number_input(f"Marketing {symbol}", 0, 500, 30, key="marketing")
         
-        col1, col2 = st.columns(2)
-        with col1:
-            st.subheader("Monthly Cash Costs")
-            venue_cost = st.number_input(f"Venue/Zoom {symbol}", 0, 1000, 50)
-            insurance_cost = st.number_input(f"Insurance {symbol}", 0, 500, 40)
-            marketing_cost = st.number_input(f"Marketing/Website {symbol}", 0, 500, 30)
+        st.markdown("##### Time Investment")
+        practice_hours = st.slider("Practice hrs/week", 0, 20, 7, key="practice")
+        education_hours = st.slider("Education hrs/week", 0, 10, 2, key="education")
+        time_value = st.slider(f"Time value {symbol}/hr", 10, 100, 30, key="time_value")
         
-        with col2:
-            st.subheader("Time Investment")
-            practice_hours = st.slider("Personal practice (hrs/week)", 0, 20, 7)
-            education_hours = st.slider("Continuing education (hrs/week)", 0, 10, 2)
-            time_value = st.slider(f"Your time value ({symbol}/hour)", 10, 100, 30)
+        st.markdown("##### Income Goals")
+        min_income_goal = st.number_input(f"Minimum {symbol}", value=currency_info["min_income"], key="min_goal")
+        side_income_goal = st.number_input(f"Side income {symbol}", value=currency_info["side_income"], key="side_goal")
+        full_income_goal = st.number_input(f"Full-time {symbol}", value=currency_info["full_income"], key="full_goal")
     
-    with tab3:
-        st.header("Income Goals & Results")
-        
-        # Goals
-        col1, col2 = st.columns(2)
-        with col1:
-            st.subheader("Your Income Goals")
-            min_income_goal = st.number_input(
-                f"Minimum income needed {symbol}", 
-                value=currency_info["min_income"]
-            )
-            side_income_goal = st.number_input(
-                f"Solid side business {symbol}", 
-                value=currency_info["side_income"]
-            )
-            full_income_goal = st.number_input(
-                f"Full-time income {symbol}", 
-                value=currency_info["full_income"]
-            )
+    # RIGHT COLUMN - LIVE RESULTS
+    with col_right:
+        st.markdown("### 📊 Live Results")
         
         # Calculations
-        # Income
         series_income = price_per_student * students_per_series * series_per_year
         subscription_income = monthly_members * monthly_price * 12
         corporate_income = corporate_workshops * corporate_price
@@ -688,14 +670,14 @@ elif st.session_state.page == 'calculator':
         monthly_cash_costs = venue_cost + insurance_cost + marketing_cost
         annual_cash_costs = monthly_cash_costs * 12
         
-        # Teaching hours calculation
-        series_hours = series_per_year * 6 * 1.5  # 6 weeks, 1.5 hours each
-        monthly_hours = 52 if monthly_members > 0 else 0  # Weekly if active
+        # Teaching hours
+        series_hours = series_per_year * 6 * 1.5
+        monthly_hours = 52 if monthly_members > 0 else 0
         corporate_hours = corporate_workshops * 2
         total_teaching_hours = series_hours + monthly_hours + corporate_hours
         teaching_hours_per_week = total_teaching_hours / 52
         
-        # Prep hours with diminishing returns
+        # Prep hours
         base_prep = 5
         series_prep_ratio = max(0.5, 2 - (series_per_year - 1) * 0.2)
         prep_hours_per_week = base_prep + (teaching_hours_per_week * series_prep_ratio)
@@ -710,100 +692,58 @@ elif st.session_state.page == 'calculator':
         monthly_net = net_income / 12
         effective_hourly = net_income / (total_hours_per_week * 52) if total_hours_per_week > 0 else 0
         
-        # Display results
+        # Display summary boxes
+        col1, col2 = st.columns(2)
+        with col1:
+            st.metric("Total Income", f"{symbol}{total_income:,.0f}")
         with col2:
-            st.subheader("Your Results")
-            
-            # Income summary
-            st.success(f"**Total Income:** {symbol}{total_income:,.0f}")
-            with st.expander("Income breakdown"):
-                st.write(f"From series: {symbol}{series_income:,.0f}")
-                st.write(f"From subscriptions: {symbol}{subscription_income:,.0f}")
-                st.write(f"From corporate: {symbol}{corporate_income:,.0f}")
-                st.write(f"Less scholarships: -{symbol}{scholarship_cost:,.0f}")
-            
-            # Cost summary
-            st.error(f"**Total Costs:** {symbol}{total_costs:,.0f}")
-            with st.expander("Cost breakdown"):
-                st.write(f"Cash costs: {symbol}{annual_cash_costs:,.0f}")
-                st.write(f"Time costs: {symbol}{annual_time_costs:,.0f}")
-            
-            # Net income
-            if net_income > 0:
-                st.success(f"**Net Income:** {symbol}{net_income:,.0f}/year")
-                st.write(f"Monthly: {symbol}{monthly_net:,.0f}")
-                st.write(f"Hourly rate: {symbol}{effective_hourly:.0f}")
-            else:
-                st.error(f"**Net Loss:** {symbol}{abs(net_income):,.0f}/year")
-                st.write("Adjust pricing or reduce costs to break even")
-            
-            # Progress toward goals
-# Progress toward goals
-            st.subheader("Your Financial Position")
-            
-            if net_income < 0:
-                # Show the loss clearly
-                st.error(f"🔴 **Current Status: Operating at a Loss**")
-                col1, col2 = st.columns(2)
-                with col1:
-                    st.metric("Net Income", f"{symbol}{net_income:,.0f}", delta=f"{symbol}{net_income:,.0f}")
-                with col2:
-                    st.metric("Monthly Loss", f"{symbol}{net_income/12:,.0f}")
-                
-                st.write("### 📊 Distance to Goals")
-                # Show how far they need to go
-                goals_data = {
-                    "Minimum Income": min_income_goal - net_income,
-                    "Side Business": side_income_goal - net_income,
-                    "Full-Time": full_income_goal - net_income
-                }
-                
-                for goal, amount in goals_data.items():
-                    st.write(f"**{goal}:** Need {symbol}{amount:,.0f} more per year")
-                
-            else:
-                # Positive income - show progress bars
-                st.success(f"✅ **Current Status: Generating Profit**")
-                
-                min_progress = min(1.0, net_income / min_income_goal) if min_income_goal > 0 else 0
-                side_progress = min(1.0, net_income / side_income_goal) if side_income_goal > 0 else 0
-                full_progress = min(1.0, net_income / full_income_goal) if full_income_goal > 0 else 0
-                
-                st.progress(min_progress)
-                st.caption(f"Minimum income: {int(min_progress * 100)}%")
-                
-                st.progress(side_progress)
-                st.caption(f"Side business: {int(side_progress * 100)}%")
-                
-                st.progress(full_progress)
-                st.caption(f"Full-time: {int(full_progress * 100)}%")
+            st.metric("Total Costs", f"{symbol}{total_costs:,.0f}")
         
-        # Insights
-        st.divider()
-        st.subheader("💡 Quick Insights")
+        # Net income display
+        if net_income > 0:
+            st.success(f"**Net Income: {symbol}{net_income:,.0f}/year**")
+            st.write(f"Monthly: {symbol}{monthly_net:,.0f} | Hourly: {symbol}{effective_hourly:.0f}")
+        else:
+            st.error(f"**Net Loss: {symbol}{abs(net_income):,.0f}/year**")
+            st.write(f"Monthly: {symbol}{monthly_net:,.0f}")
         
-        # Students served
+        # Progress or loss display
+        st.markdown("#### Progress Toward Goals")
+        if net_income < 0:
+            st.error("🔴 Operating at a loss")
+            st.write(f"Need {symbol}{min_income_goal - net_income:,.0f} more to reach minimum")
+            st.write(f"Need {symbol}{side_income_goal - net_income:,.0f} more for side income")
+            st.write(f"Need {symbol}{full_income_goal - net_income:,.0f} more for full-time")
+        else:
+            min_progress = min(1.0, net_income / min_income_goal) if min_income_goal > 0 else 0
+            side_progress = min(1.0, net_income / side_income_goal) if side_income_goal > 0 else 0
+            full_progress = min(1.0, net_income / full_income_goal) if full_income_goal > 0 else 0
+            
+            st.progress(min_progress)
+            st.caption(f"Minimum: {int(min_progress * 100)}%")
+            
+            st.progress(side_progress)
+            st.caption(f"Side income: {int(side_progress * 100)}%")
+            
+            st.progress(full_progress)
+            st.caption(f"Full-time: {int(full_progress * 100)}%")
+        
+        # Key metrics
+        st.markdown("#### Key Metrics")
         total_students = (students_per_series * series_per_year) + monthly_members + scholarships
-        st.write(f"**Students served:** {int(total_students)} people annually")
+        st.write(f"**Students served:** {int(total_students)}/year")
+        st.write(f"**Total hours:** {total_hours_per_week:.0f}/week")
+        st.write(f"**Teaching:** {teaching_hours_per_week:.0f} hrs | **Prep:** {prep_hours_per_week:.0f} hrs")
         
-        # Time commitment
-        st.write(f"**Total time commitment:** {total_hours_per_week:.0f} hours/week")
-        st.write(f"- Teaching: {teaching_hours_per_week:.0f} hrs")
-        st.write(f"- Prep/admin: {prep_hours_per_week:.0f} hrs")
-        st.write(f"- Practice & education: {practice_hours + education_hours} hrs")
-        
-        # Recommendations
+        # Quick tips
         if net_income < min_income_goal:
-            st.warning("**Suggestions to reach minimum income:**")
+            st.markdown("#### 💡 Quick Tips")
             if corporate_workshops == 0:
-                st.write("• Add just one corporate workshop per month")
+                st.write("• Add 1 corporate workshop/month")
             if monthly_members == 0:
-                st.write("• Start a monthly membership program")
+                st.write("• Start a monthly membership")
             if price_per_student < 150:
-                st.write("• Consider raising prices - even small increases help")
-            if students_per_series < 15:
-                st.write("• Work on filling your classes more")
-
+                st.write("• Consider raising prices")
 # ============================================
 # SIDEBAR (appears on all pages)
 # ============================================
