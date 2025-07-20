@@ -857,11 +857,8 @@ elif st.session_state.page == 'calculator':
         
         for rec in recommendations[:3]:  # Show top 3 recommendations
             st.write(rec)
-            
-    # Add home button
-    if st.button("🏠 Back to Home", key="home_from_calc"):
-        st.session_state.page = 'home'
-        st.rerun()
+
+
     
     st.title("💰 Meditation Teaching Income Calculator")
     st.write("See how different combinations create sustainable income")
