@@ -738,19 +738,45 @@ elif st.session_state.page == 'calculator':
                 st.write("Adjust pricing or reduce costs to break even")
             
             # Progress toward goals
-            st.subheader("Progress Toward Goals")
-            min_progress = min(1.0, net_income / min_income_goal) if min_income_goal > 0 else 0
-            side_progress = min(1.0, net_income / side_income_goal) if side_income_goal > 0 else 0
-            full_progress = min(1.0, net_income / full_income_goal) if full_income_goal > 0 else 0
+# Progress toward goals
+            st.subheader("Your Financial Position")
             
-            st.progress(min_progress)
-            st.caption(f"Minimum income: {int(min_progress * 100)}%")
-            
-            st.progress(side_progress)
-            st.caption(f"Side business: {int(side_progress * 100)}%")
-            
-            st.progress(full_progress)
-            st.caption(f"Full-time: {int(full_progress * 100)}%")
+            if net_income < 0:
+                # Show the loss clearly
+                st.error(f"🔴 **Current Status: Operating at a Loss**")
+                col1, col2 = st.columns(2)
+                with col1:
+                    st.metric("Net Income", f"{symbol}{net_income:,.0f}", delta=f"{symbol}{net_income:,.0f}")
+                with col2:
+                    st.metric("Monthly Loss", f"{symbol}{net_income/12:,.0f}")
+                
+                st.write("### 📊 Distance to Goals")
+                # Show how far they need to go
+                goals_data = {
+                    "Minimum Income": min_income_goal - net_income,
+                    "Side Business": side_income_goal - net_income,
+                    "Full-Time": full_income_goal - net_income
+                }
+                
+                for goal, amount in goals_data.items():
+                    st.write(f"**{goal}:** Need {symbol}{amount:,.0f} more per year")
+                
+            else:
+                # Positive income - show progress bars
+                st.success(f"✅ **Current Status: Generating Profit**")
+                
+                min_progress = min(1.0, net_income / min_income_goal) if min_income_goal > 0 else 0
+                side_progress = min(1.0, net_income / side_income_goal) if side_income_goal > 0 else 0
+                full_progress = min(1.0, net_income / full_income_goal) if full_income_goal > 0 else 0
+                
+                st.progress(min_progress)
+                st.caption(f"Minimum income: {int(min_progress * 100)}%")
+                
+                st.progress(side_progress)
+                st.caption(f"Side business: {int(side_progress * 100)}%")
+                
+                st.progress(full_progress)
+                st.caption(f"Full-time: {int(full_progress * 100)}%")
         
         # Insights
         st.divider()
