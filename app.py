@@ -75,6 +75,26 @@ st.markdown("""
         border-color: #E39F24;
         box-shadow: 0 0 0 0.2rem rgba(227, 159, 36, 0.25);
     }
+    
+    /* NEW: Tool cards styling */
+    div[data-testid="column"] > div {
+        background-color: #f9f9f9;
+        padding: 30px;
+        border-radius: 15px;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        height: 100%;
+    }
+    
+    /* Add visual separation between columns */
+    div[data-testid="column"]:first-child > div {
+        margin-right: 10px;
+        border: 2px solid #E39F24;
+    }
+    
+    div[data-testid="column"]:last-child > div {
+        margin-left: 10px;
+        border: 2px solid #4CAF50;
+    }
 </style>
 """, unsafe_allow_html=True)
 
@@ -97,7 +117,12 @@ if st.session_state.page == 'home':
     if st.session_state.niche_statement:
         st.success(f"✅ Your niche: {st.session_state.niche_statement}")
     
-    col1, col2 = st.columns(2)
+    # Add spacing
+    st.write("")  # Empty line
+    st.write("")  # Empty line
+    
+    # Create columns with more gap
+    col1, spacer, col2 = st.columns([5, 1, 5])
     
     with col1:
         st.markdown("### 🎯 Find Your Niche")
@@ -110,6 +135,7 @@ if st.session_state.page == 'home':
         
         *Takes about 15-20 minutes*
         """)
+        st.write("")  # Add space before button
         if st.button("Start Niche Finder", type="primary", use_container_width=True, key="niche_btn"):
             st.session_state.page = 'niche'
             st.session_state.stage = 'welcome'
@@ -126,19 +152,10 @@ if st.session_state.page == 'home':
         
         *Takes about 10 minutes*
         """)
+        st.write("")  # Add space before button
         if st.button("Open Calculator", type="primary", use_container_width=True, key="calc_btn"):
             st.session_state.page = 'calculator'
             st.rerun()
-    
-    # Suggested flow
-    st.divider()
-    st.markdown("### 🚀 Suggested Path")
-    if not st.session_state.niche_statement:
-        st.write("1️⃣ **Start with the Niche Finder** to identify who you'll serve")
-        st.write("2️⃣ Then use the **Income Calculator** to price your offerings sustainably")
-    else:
-        st.write("✅ Niche defined! Now use the **Income Calculator** to price your offerings sustainably")
-
 # ============================================
 # NICHE FINDER
 # ============================================
